@@ -1,0 +1,127 @@
+---
+title: "R code Psyc417- Matt Pritchett"
+output: html_notebook
+---
+
+
+
+
+```{r}
+install.packages("readxl")
+install.packages("dplyr")
+install.packages("ggplot2")
+install.packages("psych")
+install.packages("multcompView")
+install.packages("car")
+install.packages("effsize")
+
+# Load them
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(psych)
+library(multcompView)
+library(car)
+library(effsize)
+
+
+```
+
+```{r}
+final_data = read_excel("Desktop/Edtpa data/cleaned/final_data.xlsx")
+head(final_data)
+
+```
+
+
+```{r}
+describe(final_data$`Total Score`)
+
+
+```
+```{r}
+library(dplyr)
+
+final_data %>%
+  group_by(Program) %>%
+  summarise(
+    n = n(),
+    mean = mean(`Total Score`, na.rm = TRUE),
+    sd = sd(`Total Score`, na.rm = TRUE),
+    median = median(`Total Score`, na.rm = TRUE),
+    min = min(`Total Score`, na.rm = TRUE),
+    max = max(`Total Score`, na.rm = TRUE),
+    Q1 = quantile(`Total Score`, 0.25, na.rm = TRUE),
+    Q3 = quantile(`Total Score`, 0.75, na.rm = TRUE)
+  )
+
+```
+
+```{r}
+mean_score = mean(final_data$`Total Score`)
+std_dev = sd(final_data$`Total Score`)
+cohens_d = (mean_score - 39) / std_dev
+cohens_d
+```
+
+
+```{r}
+t.test(final_data$`Total Score`, mu = 39, alternative = "greater")
+```
+
+
+```{r}
+```
+
+
+```{r}
+anova_result <- aov(`Total Score` ~ Program, data = final_data)
+summary(anova_result)
+```
+
+
+```{r}
+ss_between <- 4654     # Sum Sq for Program
+ss_within <- 17031     # Sum Sq for Residuals
+r_squared <- ss_between / (ss_between + ss_within)
+r_squared
+
+```
+
+
+```{r}
+tukey_result <- TukeyHSD(anova_result)
+print(tukey_result)
+
+# Optional: Show only significant comparisons
+significant <- as.data.frame(tukey_result$Program) %>%
+  filter(`p adj` < 0.05)
+significant
+
+```
+```{r}
+ggplot(final_data, aes(x = `Total Score`)) +
+  geom_histogram(bins = 20, fill = "steelblue", color = "black") +
+  theme_minimal() +
+  labs(title = "Distribution of Total Scores")
+
+```
+
+
+```{r}
+ggplot(final_data, aes(x = Program, y = `Total Score`)) +
+  geom_boxplot(fill = "lightgreen") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = "Total Score by Program")
+
+```
+
+
+```{r}
+
+
+```
+
+
+
